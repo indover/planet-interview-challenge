@@ -1,69 +1,79 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Planet\InterviewChallenge\Shop;
 
-use Exception;
-use Throwable;
+use Smarty\Exception;
 use Planet\InterviewChallenge\App;
+use RuntimeException;
 
-class CartItem extends Exception
+class CartItem extends RuntimeException
 {
-		const MODE_NO_LIMIT = 0;
+    public const int MODE_NO_LIMIT = 0;
+    public const int MODE_HOUR = 1;
+    public const int MODE_MINUTE = 10;
+    public const int MODE_SECONDS = 1000;
 
-		const MODE_HOUR = 1;
+    private int $expires;
 
-		const MODE_MINUTE = 10;
+    private int $price;
 
-		const MODE_SECONDS = 1000;
+    public function __construct(int $price, int $mode, ?int $modifier = null)
+    {
+        parent::__construct("CartItem Exception");
 
-		protected bool $smartySetup = false;
+        $this->price = $price;
+        $this->expires = $this->calculateExpires($mode, $modifier);
+    }
 
-		private int $expires;
+    /**
+     * Calculate the expiration time based on the mode and modifier.
+     *
+     * @param int $mode
+     * @param int|null $modifier
+     * @return int
+     */
+    private function calculateExpires(int $mode, ?int $modifier): int
+    {
+        return match ($mode) {
+            self::MODE_NO_LIMIT => self::MODE_NO_LIMIT,
+            self::MODE_HOUR => strtotime('+' . ($modifier ?: self::MODE_HOUR) . ' hour'),
+            self::MODE_MINUTE => strtotime('+' . ($modifier ?: self::MODE_MINUTE) . ' minutes'),
+            self::MODE_SECONDS => strtotime('+' . ($modifier ?: self::MODE_SECONDS) . ' seconds'),
+            default => 0,
+        };
+    }
 
-		private int $price;
+    /**
+     * @return bool
+     */
+    public function isAvailable(): bool
+    {
+        return $this->expires == 0 || $this->expires <= time();
+    }
 
-		public function __construct(int $price, $mode, $modifier = null)
-		{
-		    switch ($mode) {
-		    case self::MODE_NO_LIMIT:
-		        $this->expires = -2;
-		        break;
-		    case self::MODE_HOUR:
-		        $this->expires = strtotime('+1 hour');
-		    case self::MODE_MINUTE:
-		        $this->expires = strtotime('+' . $modifier . ' minutes');
-		        break;
-		    case self::MODE_SECONDS:
-		        $this->expires = strtotime('+' . $modifier . ' seconds');
-		        break;
-		    }
-		    $this->price = $price;
-		}
+    /**
+     * Returns the state representation of the object.
+     *
+     * @return string State representation of the class.
+     */
+    public function getState(): string
+    {
+        return json_encode([
+            'price' => $this->price,
+            'expires' => $this->expires,
+        ]);
+    }
 
-		public function is_available(): ?bool
-		{
-		    return $this->expires < time();
-		}
+    /**
+     * @throws Exception
+     */
+    public function display(): string
+    {
+        App::smarty()->assign('price', $this->price);
+        App::smarty()->assign('expires', $this->expires);
 
-       /**
-        * Returns the state representation of the object.
-        *
-        * @param int $format Constant from the class CartItem
-        * @return string|object State representation of the class.
-        */
-		public function getState(): string
-		{
-		    return '{"price":' . $this->price . ',"expires":'.$this->expires.'}';
-		}
-
-		public function display(): string
-
-
-
-		{
-		    App::smarty()->assign('price', $this->price);
-		    App::smarty()->assign('expires', $this->expires);
-
-		    return App::smarty()->fetch('shop/CartItem.tpl');
-		}
+        return App::smarty()->fetch('shop/CartItem.tpl');
+    }
 }

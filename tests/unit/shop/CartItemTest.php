@@ -1,30 +1,34 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Planet\InterviewChallenge\Shop\CartItem;
 
-class CartItemTest extends \PHPUnit\Framework\TestCase
+class CartItemTest extends TestCase
 {
-    protected $object;
+    protected CartItem $object;
 
-    public function tearDown(): void
+    protected function setUp(): void
     {
-        unset($this->object);
-        $this->object = null;
+        $this->object = new CartItem(123, CartItem::MODE_NO_LIMIT);
     }
 
-    public function testIsAvailable()
+    public function testIsAvailableWhenNoLimit(): void
     {
-        $object = new CartItem(123, CartItem::MODE_NO_LIMIT);
-        $this->assertTrue($object->is_available());
+        $this->assertTrue($this->object->isAvailable());
+    }
 
-        $object = new CartItem(123, CartItem::MODE_NO_LIMIT, 1);
-        $this->assertTrue($object->is_available());
+    public function testIsAvailableWithExpiry(): void
+    {
+        $this->object = new CartItem(123, CartItem::MODE_NO_LIMIT, 1);
+        $this->assertTrue($this->object->isAvailable());
 
-        $object = new CartItem(123, CartItem::MODE_SECONDS, 60);
-        $this->assertFalse($object->is_available());
+        $this->object = new CartItem(123, CartItem::MODE_SECONDS, 60);
+        $this->assertFalse($this->object->isAvailable());
+
         sleep(30);
-        $this->assertFalse($object->is_available());
+        $this->assertFalse($this->object->isAvailable());
+
         sleep(30);
-        $this->assertTrue($object->is_available());
+        $this->assertTrue($this->object->isAvailable());
     }
 }

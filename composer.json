@@ -3,7 +3,7 @@
     "description": "A programming challenge for potential recruits for the Gift Card Manager and Booking Engine projects.",
     "type": "project",
     "require": {
-        "php": "^7.4",
+        "php": "^8.3",
         "codeception/codeception": "^4.2",
         "codeception/module-asserts": "^2.0",
         "codeception/module-db": "^2.1",

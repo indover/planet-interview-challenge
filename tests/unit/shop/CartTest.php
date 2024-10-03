@@ -1,9 +1,10 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Planet\InterviewChallenge\Shop\Cart;
 use Planet\InterviewChallenge\Shop\CartItem;
 
-class CartTest extends \PHPUnit\Framework\TestCase
+class CartTest extends TestCase
 {
     public function setUp(): void
     {
@@ -12,16 +13,17 @@ class CartTest extends \PHPUnit\Framework\TestCase
 
     public function testGetState()
     {
-        $this->object->addItem(new CartItem(12300, CartItem::MODE_NO_LIMIT));
+        $this->object->addItem(new CartItem(123, CartItem::MODE_NO_LIMIT));
         $state = $this->object->getState();
 
-        $expected = [
-            (object)[
-                'price'   => 12300,
-                'expires' => -2,
+        $expected = json_encode([
+            [
+                'price' => 123,
+                'expires' => CartItem::MODE_NO_LIMIT
             ]
-        ];
-        $this->assertEquals(1, count(json_decode($state)));
-        $this->assertEquals($expected, json_decode($state));
+        ]);
+
+        $this->assertCount(1, json_decode($state));
+        $this->assertEquals($expected, $state);
     }
 }

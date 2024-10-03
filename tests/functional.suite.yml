@@ -3,9 +3,9 @@ modules:
     enabled:
         - Asserts
         - PhpBrowser:
-            url: "http://127.0.0.1:80"
+            url: "http://localhost:8000"
             curl:
               CURLOPT_SSL_VERIFYPEER: false
         - REST:
-            url: "http://127.0.0.1:80"
+            url: "http://localhost:8000"
             depends: PhpBrowser

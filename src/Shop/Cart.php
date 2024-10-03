@@ -1,76 +1,105 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Planet\InterviewChallenge\Shop;
 
-use Exception;
-use Throwable;
 use Planet\InterviewChallenge\App;
+use Smarty\Exception;
 
-require_once(__DIR__.'/CartItem.php');
+require_once(__DIR__ . '/CartItem.php');
 
 class Cart
 {
-    private array $items;
+    private array $items = [];
 
     public function __construct()
     {
-        $this->items = [];
+        $params = json_decode($_GET['items'] ?? '[]', true);
 
-        $params = json_decode($_GET['items'] ?? '[]');
+        foreach ($params as $item) {
+            $price = (int)$item['price'];
+            $expires = $item['expires'];
 
-        while ($item = each($params)) {
-            $this->addItem(new CartItem((int)$item['value']->price, $this->valueToMode($item['value']->expires, $modifier), $modifier));
+            $mode = $this->valueToMode($expires);
+            $modifier = $this->valueToModifier($expires);
+
+            $this->addItem(new CartItem($price, $mode, $modifier));
         }
     }
 
-    private function valueToMode($value, &$modifier): int {
-
-        if ($newValue = $value) {
-            if ($value === 'never') {
-                return CartItem::MODE_NO_LIMIT;
-            }
-
-            if ($value === '60min') {
-                $modifier = 60;
-                return CartItem::MODE_SECONDS;
-            }
-        }
-    }
-
-    public function addItem(CartItem $cartItem): ?bool
+    /**
+     * Convert the value to the corresponding time modifier.
+     *
+     * @param string $value
+     * @return int|null
+     */
+    private function valueToModifier(string $value): ?int
     {
-        try {
-            $cartItem->is_available();
-            $this->items[] = $cartItem;
-            return true;
-        } catch (Throwable|Exception $e) {
-            throw $e;
-        }
+        return (int)filter_var($value, FILTER_SANITIZE_NUMBER_INT) ?: 0;
     }
 
+    /**
+     * Convert the value to the corresponding time mode.
+     *
+     * @param string $value
+     * @return int
+     */
+    private function valueToMode(string $value): int
+    {
+        $nonNumericValue = preg_replace('/\d+/', '', $value);
+        return match (trim($nonNumericValue)) {
+            'hour' => CartItem::MODE_HOUR,
+            'min' => CartItem::MODE_MINUTE,
+            'second' => CartItem::MODE_SECONDS,
+            default => CartItem::MODE_NO_LIMIT,
+        };
+    }
+
+    /**
+     * @param CartItem $cartItem
+     * @return bool
+     */
+    public function addItem(CartItem $cartItem): bool
+    {
+        $cartItem->isAvailable();
+        $this->items[] = $cartItem;
+
+        return true;
+    }
+
+    /**
+     * @return array
+     */
     public function getItems(): array
     {
         return $this->items;
     }
 
-    public function clear(): void {
-        unset($this->items);
+    /**
+     * @return void
+     */
+    public function clear(): void
+    {
+        $this->items = [];
     }
 
+    /**
+     * @throws Exception
+     */
     public function display(): string
     {
         App::smarty()->assign('items', $this->items);
         return App::smarty()->fetch('shop/Cart.tpl');
     }
 
+    /**
+     * @return string
+     */
     public function getState(): string
     {
-        $objectStates = '[';
+        $states = array_map(fn($item) => $item->getState(), $this->items);
 
-        while ($item = each($this->items)) {
-            $objectStates .= $item['value']->getState() . ',';
-        }
-        $objectStates = substr($objectStates, 0, -1);
-        return $objectStates . ']';
+        return '[' . implode(',', $states) . ']';
     }
 }

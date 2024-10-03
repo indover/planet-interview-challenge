@@ -17,3 +17,30 @@ You are left with simple instructions: "Make the tests pass, and provide a teste
 - The instructions for how to run the app and the tests should be added to the repository's README.md file (this one).
 - **Important:** the file README.md **must** also describe which parts of your solution were not made from scratch - this includes but not limited to usign generative AI such as ChatGPT, copying code from StackOverflow or other online resource or using any other existing resources such as Google search results. If the entirety of your submission was made from the ground up by yourself, please state this as well.
 - Once finished, reach out to your recruitment contact in Planet to let them know you have finished the assignment.
+
+### - - - - - - - - - - - - -
+## Installation
+ 
+1. Check php version by command: ```php -v```
+2. Update to PHP version ^8.1 if your version is lower.
+3. Install project dependencies using Composer: ```composer install```
+4. Start the PHP built-in server: ```php -S localhost:8000 -t public``` then navigate to [localhost:8000](http://localhost:8000/) in your web browser.
+
+### - - - - - - - - - - - 
+## Run Tests
+1. Run ```php vendor/bin/codecept build```
+1. Check unit tests run ```vendor/bin/phpunit tests/unit/```
+##### To check only the CartTest: ```vendor/bin/phpunit tests/unit/shop/CartTest.php``` 
+3. Check functional tests:
+* Run the functional tests: ```php vendor/bin/codecept run```
+
+### - - - - - - - - - - - - -
+## My updates
+Made minor changes such as renaming methods/variables/data, updating/adding functionality, and tests.
+
+#### TODO: add docker, split to services
+
+> "Follow the errors, and they will unveil the path to clean code." - My personal insight
+
+
+
