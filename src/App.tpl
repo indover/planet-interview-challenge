@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title></title>
-  <link rel="stylesheet" href="/public/css/style.css">
+  <link rel="stylesheet" href="css/style.css">
   <meta name="description" content="">
 
   <meta property="og:title" content="">
@@ -26,7 +26,7 @@
 <body>
 
 {$ShopCart->display()}
-<script src="/public/js/app.js"></script>
+<script src="js/app.js"></script>
 
 </body>
 
