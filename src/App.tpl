@@ -19,7 +19,7 @@
   <link rel="icon" href="/public/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/public/icon.png">
 
-{*  <link rel="manifest" href="site.webmanifest">*}
+  {*  <link rel="manifest" href="site.webmanifest">*}
   <meta name="theme-color" content="#fafafa">
 </head>
 
